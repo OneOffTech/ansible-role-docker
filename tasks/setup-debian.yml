@@ -14,6 +14,11 @@
     with_items:
       - apt-transport-https
       - ca-certificates
+      - curl
+      - gnupg2
+      - software-properties-common
+      - containerd.io
+      - docker-{{ docker_edition }}-cli
 
   - name: Docker apt key is added
     apt_key:
