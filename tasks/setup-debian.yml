@@ -7,6 +7,18 @@
       - docker
       - docker-engine
 
+  - name: Docker apt key is added
+    apt_key:
+      url: https://download.docker.com/linux/debian/gpg
+      id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+      state: present
+  
+  - name: Ensure docker repository is enabled
+    apt_repository:
+      repo: "{{ docker_apt_repository }}"
+      state: present
+      update_cache: yes
+
   - name: Ensure dependencies are installed
     package:
       name: "{{ item }}"
@@ -18,16 +30,7 @@
       - gnupg2
       - software-properties-common
       - containerd.io
+      - docker-{{ docker_edition }}
       - docker-{{ docker_edition }}-cli
 
-  - name: Docker apt key is added
-    apt_key:
-      url: https://download.docker.com/linux/ubuntu/gpg
-      id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
-      state: present
 
-  - name: Ensure docker repository is enabled
-    apt_repository:
-      repo: "{{ docker_apt_repository }}"
-      state: present
-      update_cache: yes
