@@ -1,17 +1,40 @@
 ---
-  - include: setup-debian.yml
-    when: ansible_os_family == 'Debian'
-
-  - name: Docker is installed
+  - name: Ensure old versions of Docker are not installed
     package:
-      name: "{{ docker_package }}"
-      state: "{{ docker_package_state }}"
+      name: "{{ item }}"
+      state: absent
+    with_items:
+      - docker
+      - docker-engine
+      - docker-ce
+
+  - name: Delete old docker-compose version if it's present.
+    file:
+      path: "{{ docker_old_compose_path }}"
+      state: absent
+
+  - name: old docker apt key is no longer present
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+      state: absent
+
+  - name: Ensure docker repository is disabled
+    apt_repository:
+      repo: "{{ docker_old_apt_repository }}"
+      state: absent
+      update_cache: yes
+
+  - name: Ensure docker is installed
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - docker.io
+      - docker-compose
 
   - name: Ensure Docker is started and enabled at boot
     service:
       name: docker
       state: started
       enabled: yes
-
-  - include: docker-compose.yml
-    when: docker_install_compose
